@@ -1,0 +1,18 @@
+# Auspify Data Science Internship — Task 1: Data Cleaning & Preprocessing
+# Create with:  conda env create -f environment.yml
+# Activate with: conda activate austech
+
+name: austech
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pandas>=2.1
+  - numpy>=1.26
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - openpyxl>=3.1
+  - ipykernel>=6.29
+  - jupyter>=1.0

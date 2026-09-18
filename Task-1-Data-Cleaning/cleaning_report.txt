@@ -1,0 +1,43 @@
+DATA CLEANING REPORT
+Auspify Data Science Internship - Task 1
+Intern: Wandiya James
+Source file: Dataset.csv
+==============================================================
+
+SHAPE
+  Raw      : 8,790 rows x 10 columns
+  Cleaned  : 8,786 rows x 28 columns
+  Rows removed : 4 (duplicate records)
+  Columns added: 18 (derived features)
+
+ISSUES FOUND AND RESOLVED
+  1. Missing values disguised as "Not Given" in director and country.
+     Converted to NaN, then filled with "Unknown" while preserving
+     director_known / country_known flags. Replacement was scoped to
+     these two columns so the legitimate film titled "Unknown" survived.
+  2. 4 duplicate records sharing identical content under
+     different show_id values. Removed, keeping the first occurrence.
+  3. Whitespace stripped from all text columns.
+  4. date_added converted from text to datetime; year_added, month_added,
+     month_name_added and years_to_platform derived from it.
+  5. duration split into duration_value (numeric) and duration_unit,
+     resolving the mixed minutes/seasons format. movie_minutes and
+     tv_seasons added for unit-specific analysis.
+  6. rating standardised: UR folded into NR, TV-Y7-FV into TV-Y7.
+     audience_category derived as a broader grouping.
+  7. listed_in restructured into genres (list), primary_genre and n_genres.
+  8. Outliers detected with the IQR method: 703 runtime outliers
+     flagged. Inspection showed these to be legitimate short films and
+     epics, so they were retained and flagged rather than removed.
+  9. Logical consistency checked: 14 titles appear to
+     predate their own release year, caused by release_year recording the
+     latest TV season rather than first airing. Flagged, not removed.
+ 10. Low-cardinality columns converted to category dtype
+     (-38.9% memory reduction).
+
+VALIDATION
+  15 of 15 automated checks passed.
+
+OUTPUT
+  output/netflix_cleaned.csv
+  output/netflix_cleaned.xlsx
