@@ -1,0 +1,24 @@
+# Auspify Technologies — Data Science Internship
+# Netflix Dataset — Tasks 1, 2, 3 and 5
+#
+# Install into the existing conda environment:
+#     conda activate austech
+#     pip install -r requirements.txt
+
+# Core data handling — all tasks
+pandas>=2.1
+numpy>=1.26
+
+# Visualisation — Tasks 1, 2, 3, 5
+matplotlib>=3.8
+seaborn>=0.13
+
+# Machine learning — Tasks 3 and 5
+scikit-learn>=1.3
+
+# Excel export — Task 1
+openpyxl>=3.1
+
+# Notebook support — all tasks
+ipykernel>=6.29
+jupyter>=1.0
