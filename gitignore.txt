@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Environments
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep the saved model and cleaned data — they are deliverables.
+# If the repo gets too large, uncomment the line below and note in the
+# README that running Task 5 regenerates it.
+# Task-5-ML-Classification/output/*.pkl
