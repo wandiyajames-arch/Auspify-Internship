@@ -1,0 +1,49 @@
+# Auspify Technologies — Data Science Internship
+# Netflix Dataset — Tasks 1, 2, 3, 5 and 6
+#
+# Create the environment:
+#     conda env create -f environment.yml
+#
+# Activate it:
+#     conda activate austech
+#
+# Update an existing austech environment with anything new:
+#     conda env update -f environment.yml --prune
+
+name: austech
+
+channels:
+  - conda-forge
+
+dependencies:
+  # Runtime
+  - python=3.11
+
+  # Core data handling — all tasks
+  - pandas>=2.1
+  - numpy>=1.26
+
+  # Visualisation — Tasks 1, 2, 3, 5
+  - matplotlib>=3.8
+  - seaborn>=0.13
+
+  # Machine learning — Tasks 3 and 5
+  # TF-IDF, cosine similarity, classifiers, evaluation metrics
+  - scikit-learn>=1.3
+
+  # Excel export — Task 1
+  - openpyxl>=3.1
+
+  # Notebook support — all tasks
+  - ipykernel>=6.29
+  - jupyter>=1.0
+
+  # pip itself, so the entries below install into this environment
+  - pip
+
+  # Dashboard — Task 6.
+  # Installed via pip, not conda: the conda-forge streamlit package is
+  # several years out of date (1.9.0) and lacks st.tabs and st.cache_data.
+  - pip:
+      - streamlit>=1.50
+      - plotly>=5.20
