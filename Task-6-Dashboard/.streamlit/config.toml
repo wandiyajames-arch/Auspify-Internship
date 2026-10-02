@@ -1,0 +1,18 @@
+# Streamlit theme for the Netflix Content Intelligence dashboard.
+# Applies locally and on Streamlit Community Cloud alike.
+#
+# Deep navy-slate rather than pure white: lower glare for long viewing,
+# and it lets the chart colours carry the information instead of competing
+# with a bright background. Text is a soft off-white (#E6EAF2) rather than
+# pure white, which reduces halation on dark backgrounds.
+
+[theme]
+base = "dark"
+primaryColor = "#FF4B4B"
+backgroundColor = "#0E1726"
+secondaryBackgroundColor = "#182538"
+textColor = "#E6EAF2"
+font = "sans serif"
+
+[server]
+headless = true

@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 
 # --------------------------------------------------------------------------
@@ -33,24 +34,62 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# A single palette used by every chart, so the dashboard reads as one piece
-NAVY = "#1f3a5f"
-BLUE = "#2980b9"
-PURPLE = "#8e44ad"
-RED = "#c0392b"
-GREEN = "#27ae60"
-ORANGE = "#e67e22"
-GREY = "#95a5a6"
+# A single palette used by every chart, so the dashboard reads as one piece.
+# Tuned for the dark theme in .streamlit/config.toml — the print-oriented
+# hues used in the notebooks sit too close to the background here, so each
+# is lifted in luminance while keeping its hue.
+NAVY = "#4A7BB7"
+BLUE = "#3BA3E0"
+PURPLE = "#A95FD6"
+RED = "#E74C3C"
+GREEN = "#2ECC71"
+ORANGE = "#F39C12"
+GREY = "#7F8C9B"
 
 TYPE_COLORS = {"Movie": BLUE, "TV Show": PURPLE}
+
+# Charts inherit the app background rather than painting their own panel,
+# so a Plotly figure reads as part of the page instead of a pasted-in image.
+CHART_TEMPLATE = go.layout.Template(
+    layout=dict(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#E6EAF2", size=13),
+        title=dict(font=dict(color="#E6EAF2")),
+        xaxis=dict(gridcolor="#263449", zerolinecolor="#263449",
+                   linecolor="#334155", tickfont=dict(color="#A8B4C7")),
+        yaxis=dict(gridcolor="#263449", zerolinecolor="#263449",
+                   linecolor="#334155", tickfont=dict(color="#A8B4C7")),
+        legend=dict(font=dict(color="#E6EAF2")),
+        hoverlabel=dict(bgcolor="#182538", font=dict(color="#E6EAF2")),
+        colorway=[BLUE, PURPLE, ORANGE, GREEN, RED, GREY],
+    )
+)
+pio.templates["netflix_dash"] = CHART_TEMPLATE
+pio.templates.default = "netflix_dash"
 
 st.markdown(
     """
     <style>
       .block-container {padding-top: 2.2rem; padding-bottom: 2rem;}
-      [data-testid="stMetricValue"] {font-size: 1.9rem;}
-      [data-testid="stMetricLabel"] {font-size: 0.85rem;}
       h1 {font-size: 2.1rem !important;}
+
+      /* Metrics as raised cards, so the headline numbers read as a
+         distinct band rather than floating text on the background. */
+      [data-testid="stMetric"] {
+          background: #182538;
+          border: 1px solid #263449;
+          border-radius: 10px;
+          padding: 14px 16px;
+      }
+      [data-testid="stMetricValue"] {font-size: 1.8rem; color: #E6EAF2;}
+      [data-testid="stMetricLabel"] {font-size: 0.82rem; color: #A8B4C7;}
+
+      /* Give the tab row a visible baseline against the dark background. */
+      .stTabs [data-baseweb="tab-list"] {
+          gap: 6px;
+          border-bottom: 1px solid #263449;
+      }
     </style>
     """,
     unsafe_allow_html=True,
@@ -431,7 +470,7 @@ with tab_geo:
     if not pivot.empty and cols:
         fig = px.imshow(
             pivot[cols], text_auto=".0f", aspect="auto",
-            color_continuous_scale="YlOrRd", labels=dict(color="Minutes"),
+            color_continuous_scale="Viridis", labels=dict(color="Minutes"),
         )
         fig.update_layout(height=380, xaxis_title="", yaxis_title="",
                           margin=dict(t=10, b=10))
