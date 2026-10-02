@@ -4,7 +4,8 @@
 **Program:** Auspify Technologies — 4-Week Data Science Internship
 **Dataset:** Netflix catalogue, 8,790 titles, snapshot to September 2021
 
-> **Live dashboard:** _paste your Streamlit Cloud URL here once deployed_
+> ### 🔗 [**Live dashboard →**](https://auspify-internship-dashboard.streamlit.app/)
+> `https://auspify-internship-dashboard.streamlit.app/`
 
 Five of the six available tasks are completed, against a requirement of any four.
 
