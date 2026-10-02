@@ -196,6 +196,16 @@ audience_choice = st.sidebar.multiselect(
     default=sorted(df_all["audience_category"].dropna().unique()),
 )
 
+# Genre is multi-valued — a title tagged "Dramas, International Movies" must
+# match a filter on either. Streamlit's multiselect is type-to-search, which
+# matters with 42 options.
+ALL_GENRES = sorted({g for lst in df_all["genres"] for g in lst if g})
+genre_choice = st.sidebar.multiselect(
+    "Genre (blank = all)",
+    options=ALL_GENRES,
+    default=[],
+)
+
 # Apply the filters
 mask = (
     df_all["year_added"].between(*year_range)
@@ -204,6 +214,10 @@ mask = (
 )
 if country_choice:
     mask &= df_all["primary_country"].isin(country_choice)
+
+if genre_choice:
+    wanted = set(genre_choice)
+    mask &= df_all["genres"].apply(lambda lst: bool(wanted & set(lst)))
 
 df = df_all[mask]
 
@@ -237,6 +251,23 @@ if df.empty:
     st.warning("No titles match the current filters. Widen the selection in the sidebar.")
     st.stop()
 
+# A headline strip above the tabs, so the key numbers stay on screen whichever
+# tab is open — and so a single screenshot carries the summary.
+k1, k2, k3, k4, k5 = st.columns(5)
+
+n_movies = int((df["type"] == "Movie").sum())
+n_shows = int((df["type"] == "TV Show").sum())
+n_countries = df.loc[df["country_known"], "primary_country"].nunique()
+n_genres = len({g for lst in df["genres"] for g in lst if g})
+
+k1.metric("Titles", f"{len(df):,}")
+k2.metric("Movies", f"{n_movies:,}", f"{n_movies / len(df) * 100:.0f}%")
+k3.metric("TV Shows", f"{n_shows:,}", f"{n_shows / len(df) * 100:.0f}%")
+k4.metric("Countries", f"{n_countries:,}")
+k5.metric("Genres", f"{n_genres:,}")
+
+st.markdown("")
+
 tab_overview, tab_trends, tab_geo, tab_predict, tab_insights = st.tabs(
     ["Overview", "Trends", "Geography", "Predict", "Business insights"]
 )
@@ -247,21 +278,24 @@ tab_overview, tab_trends, tab_geo, tab_predict, tab_insights = st.tabs(
 # --------------------------------------------------------------------------
 
 with tab_overview:
+    # The headline counts live above the tabs; these are the shape-of-the-data
+    # numbers that would otherwise need a chart to read off.
     c1, c2, c3, c4 = st.columns(4)
 
-    movies = (df["type"] == "Movie").sum()
-    shows = (df["type"] == "TV Show").sum()
     median_runtime = df["movie_minutes"].median()
     one_season = (df["tv_seasons"] == 1).sum()
     total_shows = df["tv_seasons"].notna().sum()
+    median_lag = df["years_to_platform"].median()
+    recent_share = (df["release_year"] >= 2010).mean() * 100
 
-    c1.metric("Titles", f"{len(df):,}")
-    c2.metric("Movies", f"{movies:,}", f"{movies / len(df) * 100:.0f}% of selection")
-    c3.metric("TV Shows", f"{shows:,}", f"{shows / len(df) * 100:.0f}% of selection")
-    c4.metric(
-        "Median movie runtime",
-        f"{median_runtime:.0f} min" if pd.notna(median_runtime) else "—",
-    )
+    c1.metric("Median movie runtime",
+              f"{median_runtime:.0f} min" if pd.notna(median_runtime) else "—")
+    c2.metric("Shows lasting one season",
+              f"{one_season / total_shows * 100:.0f}%" if total_shows else "—",
+              f"{one_season:,} of {total_shows:,}" if total_shows else None)
+    c3.metric("Released 2010 or later", f"{recent_share:.0f}%")
+    c4.metric("Median years to platform",
+              f"{median_lag:.0f}" if pd.notna(median_lag) else "—")
 
     st.markdown("---")
 
@@ -416,14 +450,32 @@ with tab_geo:
     known = df[df["country_known"]]
     country_counts = known["primary_country"].value_counts().head(15)
 
-    fig = px.bar(
-        x=country_counts.values, y=country_counts.index, orientation="h",
-        color_discrete_sequence=[NAVY],
-    )
-    fig.update_layout(
-        height=460, xaxis_title="Titles", yaxis_title="",
-        yaxis={"categoryorder": "total ascending"}, margin=dict(t=10, b=10),
-    )
+    view = st.radio("View as", ["Bar chart", "Treemap"],
+                    horizontal=True, label_visibility="collapsed")
+
+    if view == "Bar chart":
+        fig = px.bar(
+            x=country_counts.values, y=country_counts.index, orientation="h",
+            color_discrete_sequence=[NAVY],
+        )
+        fig.update_layout(
+            height=460, xaxis_title="Titles", yaxis_title="",
+            yaxis={"categoryorder": "total ascending"}, margin=dict(t=10, b=10),
+        )
+    else:
+        # Area encodes volume, which makes the scale gap obvious at a glance —
+        # the United States block dwarfs everything else in a way a bar axis
+        # lets you read past.
+        fig = px.treemap(
+            names=country_counts.index, parents=[""] * len(country_counts),
+            values=country_counts.values,
+            color=country_counts.values, color_continuous_scale="Blues",
+        )
+        fig.update_traces(textinfo="label+value",
+                          hovertemplate="%{label}<br>%{value:,} titles<extra></extra>")
+        fig.update_layout(height=460, margin=dict(t=10, b=10),
+                          coloraxis_showscale=False)
+
     st.plotly_chart(fig, width="stretch")
 
     st.markdown("---")
